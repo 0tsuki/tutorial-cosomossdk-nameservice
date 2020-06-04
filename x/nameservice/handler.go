@@ -18,6 +18,8 @@ func NewHandler(k Keeper) sdk.Handler {
 			return handleMsgSetName(ctx, k, msg)
 		case types.MsgBuyName:
 			return handleMsgBuyName(ctx, k, msg)
+		case types.MsgDeleteName:
+			return handleMsgDeleteName(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -52,5 +54,17 @@ func handleMsgBuyName(ctx sdk.Context, k Keeper, msg types.MsgBuyName) (*sdk.Res
 	}
 	k.SetOwner(ctx, msg.Name, msg.Buyer)
 	k.SetPrice(ctx, msg.Name, msg.Bid)
+	return &sdk.Result{}, nil
+}
+
+// Handle a message to delete name
+func handleMsgDeleteName(ctx sdk.Context, k Keeper, msg types.MsgDeleteName) (*sdk.Result, error) {
+	if !k.IsNamePresent(ctx, msg.Name) {
+		return nil, sdkerrors.Wrap(types.ErrNameDoesNotExist, msg.Name)
+	}
+	if !msg.Owner.Equals(k.GetOwner(ctx, msg.Name)) {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner")
+	}
+	k.DeleteWhois(ctx, msg.Name)
 	return &sdk.Result{}, nil
 }

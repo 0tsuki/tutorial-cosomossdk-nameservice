@@ -3,6 +3,8 @@ package nameservice
 import (
 	"fmt"
 
+	"github.com/0tsuki/tutorial-cosomossdk-nameservice/x/nameservice/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -12,33 +14,19 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		// TODO: Define your msg cases
-		// 
-		//Example:
-		// case Msg<Action>:
-		// 	return handleMsg<Action>(ctx, k, msg)
+		case types.MsgSetName:
+			return handleMsgSetName(ctx, k, msg)
 		default:
-			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName,  msg)
+			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 		}
 	}
 }
 
-// handle<Action> does x
-func handleMsg<Action>(ctx sdk.Context, k Keeper, msg Msg<Action>) (*sdk.Result, error) {
-	err := k.<Action>(ctx, msg.ValidatorAddr)
-	if err != nil {
-		return nil, err
+func handleMsgSetName(ctx sdk.Context, k Keeper, msg types.MsgSetName) (*sdk.Result, error) {
+	if !msg.Owner.Equals(k.GetOwner(ctx, msg.Name)) { // Checks if the msg sender is the same as the current owner
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner") // If not, throw an error
 	}
-
-	// TODO: Define your msg events
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.ValidatorAddr.String()),
-		),
-	)
-
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	k.SetName(ctx, msg.Name, msg.Value) // If so, set the name to the value specified in the msg.
+	return &sdk.Result{}, nil
 }

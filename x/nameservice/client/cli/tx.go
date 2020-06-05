@@ -45,7 +45,7 @@ func GetCmdBuyName(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			name, amount := args[0], args[1]
 
-			txBldr := auth.NewTxBuilderFromCLI(inBuf)
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			coins, err := sdk.ParseCoins(amount)
 			if err != nil {
 				return err

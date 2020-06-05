@@ -14,11 +14,11 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		case types.MsgSetName:
+		case MsgSetName:
 			return handleMsgSetName(ctx, k, msg)
-		case types.MsgBuyName:
+		case MsgBuyName:
 			return handleMsgBuyName(ctx, k, msg)
-		case types.MsgDeleteName:
+		case MsgDeleteName:
 			return handleMsgDeleteName(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName, msg)

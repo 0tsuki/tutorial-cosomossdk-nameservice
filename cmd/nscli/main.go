@@ -47,8 +47,8 @@ func main() {
 	// with the cdc
 
 	rootCmd := &cobra.Command{
-		Use:   "appcli",
-		Short: "Command line interface for interacting with appd",
+		Use:   "nscli",
+		Short: "Command line interface for interacting with nsd",
 	}
 
 	// Add --chain-id to persistent flags and mark it required
@@ -73,7 +73,7 @@ func main() {
 	)
 
 	// Add flags and prefix all env exposed with AA
-	executor := cli.PrepareMainCmd(rootCmd, "AA", app.DefaultCLIHome)
+	executor := cli.PrepareMainCmd(rootCmd, "NS", app.DefaultCLIHome)
 
 	err := executor.Execute()
 	if err != nil {
